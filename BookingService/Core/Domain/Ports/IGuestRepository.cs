@@ -6,6 +6,6 @@ namespace Domain.Ports
     {
         Task<Guest> Get(int id);
 
-        Task<int> Save(Guest guest);
+        Task<int> Create(Guest guest);
     }
 }

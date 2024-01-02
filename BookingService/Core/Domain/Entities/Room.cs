@@ -11,6 +11,7 @@ namespace Domain.Entities
         public int Id { get; set; }
         public string Name { get; set; }
         public int Level { get; set; }
+        public Price Price { get; set; }
         public bool InMaintenance { get; set; }
 
         public bool IsAvaliable
