@@ -24,13 +24,34 @@ namespace API.Controllers
         [HttpPost]
         public async Task<ActionResult<GuestDto>> Post(GuestDto guestDto)
         {
-            var res = await _guestManager.CreateGuest(guestDto);
+            
+
+            var request = new Application.Guest.Requests.CreateGuestRequest();
+
+            request.Data = guestDto;
+
+            var res = await _guestManager.CreateGuest(request);
 
             if (res.Success)
             {
                 return Created("", res.Data);
             }
-            if(res.ErrorCode == ErrorCodes.NOT_FOUND)
+            if(res.ErrorCode == ErrorCodes.INVALID_PERSON_ID)
+            {
+                return BadRequest(res);
+            }if(res.ErrorCode == ErrorCodes.MISSING_REQUIRED_INFORMATION)
+            {
+
+                return BadRequest(res);
+            }if(res.ErrorCode == ErrorCodes.INVALID_EMAIL)
+            {
+
+                return BadRequest(res);
+            }if(res.ErrorCode == ErrorCodes.COULD_NOT_STORE_DATA)
+            {
+
+                return BadRequest(res);
+            }if(res.ErrorCode == ErrorCodes.NOT_FOUND)
             {
 
                 return BadRequest(res);

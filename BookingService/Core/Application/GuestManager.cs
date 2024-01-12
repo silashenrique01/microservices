@@ -2,7 +2,9 @@
 using Application.Guest.Ports;
 using Application.Guest.Requests;
 using Application.Guest.Responses;
+using Domain.Exceptions;
 using Domain.Ports;
+using System.Text.RegularExpressions;
 
 namespace Application
 {
@@ -16,19 +18,57 @@ namespace Application
             _guestRepository = guestRepository;
         }
 
-        public async Task<GuestResponse> CreateGuest(GuestDto guestDto)
+        public async Task<GuestResponse> CreateGuest(CreateGuestRequest request)
         {
             try
             {
-                var guest = GuestDto.MapToEntity(guestDto);
-                guestDto.Id = await _guestRepository.Create(guest);
+                var guest = GuestDto.MapToEntity(request);
+
+                await guest.Save(_guestRepository);
+
+                request.Data.Id = guest.Id;
+
+                //guestDto.Id = await _guestRepository.Create(guest);
 
                 return new GuestResponse
                 {
-                    Data = guestDto,
+                    Data = request.Data,
                     Success = true
                 };
             }
+            catch(InvalidPersonDocumentIdException error) {
+
+                return new GuestResponse
+                {
+                    Data = null,
+                    Success = false,
+                    Message = "The ID passed is not valid",
+                    ErrorCode = ErrorCodes.INVALID_PERSON_ID
+                };
+            }
+
+            catch(MissingRequiredInformation error)
+            {
+                return new GuestResponse
+                {
+                    Data = null,
+                    Success = false,
+                    Message = "Missing required information passed",
+                    ErrorCode = ErrorCodes.MISSING_REQUIRED_INFORMATION
+                };
+            }
+
+            catch (InvalidEmailException error)
+            {
+                return new GuestResponse
+                {
+                    Data = null,
+                    Success = false,
+                    Message = "The given email is not valid",
+                    ErrorCode = ErrorCodes.INVALID_EMAIL
+                };
+            }
+
             catch (Exception ex) {
                 return new GuestResponse
                 {
